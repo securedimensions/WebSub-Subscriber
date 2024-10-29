@@ -1,0 +1,19 @@
+services:
+  subscriber:
+    build: 
+      context: ..
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    environment:
+      - "SUBSCRIBER_PORT=$SUBSCRIBER_PORT"
+      - "SUBSCRIBER_LOG_LEVEL=$SUBSCRIBER_LOG_LEVEL"
+      - "HUB_URL=$HUB_URL"
+      - "LEASE_SECONDS=$LEASE_SECONDS"
+      - "LEASE_SKEW_SECONDS=$LEASE_SKEW_SECONDS"
+    ports:
+      - "$SUBSCRIBER_PORT:$SUBSCRIBER_PORT"
+networks:
+  WebSubSubscriber:
+    name: WebSub-Subscriber
