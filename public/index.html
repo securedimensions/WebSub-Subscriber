@@ -55,7 +55,7 @@
 			<h1>SensorThings API WebSub Subscriber</h1>
 			<div class="row">
 				<div class="col-md-12">
-					<p>This subscriber is linked with the <a href="https://websub-hub.demo.secure-dimensions.de">WebSub
+					<p>This subscriber is linked with the <a href="https://websub-hub.citiobs.secd.eu">WebSub
 							Hub</a> that is associated with the <a
 							href="https://citiobs.demo.secure-dimensions.de/staplustest/v1.1">SensorThings (STA)
 							service</a> for the CitiObs project.</p>
@@ -69,7 +69,7 @@
 					<form>
 						<label for="url">STA URL</label><br>
 						<input type="text" id="url" style="width:80em"
-							value="https://citiobs.demo.secure-dimensions.de/staplustest/v1.1/Parties('ff1045c2-a6de-31ad-8eb2-2be104fe27ea')/Datastreams(1802)/Observations"><br><br>
+							value="https://citiobs.demo.secure-dimensions.de/staplustest/v1.1/Observations"><br><br>
 						<input type="button" style="background-color:blue;color:white" onclick="discoverTopic()"
 							value="Discover Topic">
 					</form>
@@ -118,7 +118,7 @@
 						// Function to subscribe
 						function subscribeTopic() {
 
-							let url = 'ws://localhost:3000?topic=' + topic.value + '&lease_seconds=' + lease_seconds.value;
+							let url = 'wss://websub-subscriber.citiobs.secd.eu?topic=' + topic.value + '&lease_seconds=' + lease_seconds.value;
 							if (socket === undefined)
 								socket = new WebSocket(url);
 							else
