@@ -40,11 +40,11 @@ var options = {
     inflate: true,
     limit: '100kb',
     type: 'application/octet-stream'
-  };
-  
+};
+
 app.use(bodyParser.raw(options));
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(express.static(path.join(__dirname, 'public')));
+app.engine('html', require('ejs').renderFile);
 
 // middleware to check the data POSTed to a callback endpoint
 app.use('/callback/:topic', function (req, res, next) {
@@ -69,8 +69,17 @@ app.use('/callback/:topic', function (req, res, next) {
     next();
 })
 
+app.get("/", function (req, res, next) {
+    log.debug("/index.html");
+    
+    res.render(__dirname + "/views/index.html", { wsUrl: config.websocket_url });
+}
+);
+
+app.use(express.static(path.join(__dirname, 'public')));
+
 // Connction via WebSocket means a subscription
-app.websocket('/', function (info, cb, next) {
+app.websocket('/ws', function (info, cb, next) {
     log.info(
         'WebSocket connect request for topic: %s using origin %s',
         info.req.query['topic'],
@@ -91,6 +100,7 @@ app.websocket('/', function (info, cb, next) {
     // Accept connections by passing a function to cb that will handle the connected websocket
     // And subscribe to the configured Hub
     cb(function (socket) {
+        const hub = info.req.query['hub'];
         const topic = info.req.query['topic'];
         const lease_seconds = info.req.query['lease_seconds'] || config.lease_seconds;
         const callback = crypto.randomUUID();
@@ -99,6 +109,7 @@ app.websocket('/', function (info, cb, next) {
         socket.userInfo = { 'topic': topic, 'callback': callback };
 
         const subscription = {
+            'hub': hub,
             'topic': topic,
             'callback': callback,
             'secret': secret,
@@ -111,7 +122,7 @@ app.websocket('/', function (info, cb, next) {
 
 
         // Initiate subscribe to the configured Hub
-        request(config.hub_url, {
+        request(hub, {
             method: 'POST',
             followRedirect: false,
             data: {
@@ -132,6 +143,11 @@ app.websocket('/', function (info, cb, next) {
             log.info(`subscription to topic ${topic} via callback ${callback} requested`);
 
         }).catch(error => {
+            if (error.errors !== undefined){
+                error.errors.forEach(e => {
+                    log.error(e);
+                });
+            } 
             log.error(error);
         });
     });
@@ -179,7 +195,7 @@ app.get('/callback/:id', function (req, res, net) {
             return res.status(404).contentType('text').send('subscription not found for callback: ' + callback);
         }
         log.debug('info: ', subscription.topic);
-        
+
         // process lease_seconds
         let lease_seconds = req.query['hub.lease_seconds'] || null;
         log.debug(`lease_seconds: ${lease_seconds}`);
@@ -220,7 +236,7 @@ app.get('/callback/:id', function (req, res, net) {
                 log.debug('updating subscription: ', subscription.topic);
 
                 // Initiate subscribe to the configured Hub
-                request(config.hub_url, {
+                request(subscription.hub, {
                     method: 'POST',
                     followRedirect: false,
                     data: {
@@ -241,7 +257,7 @@ app.get('/callback/:id', function (req, res, net) {
                 }).catch(error => {
                     log.error(error);
                 });
-            }, lease_seconds * 1000 /*ms*/);
+            }, (lease_seconds - config.lease_skew_seconds) * 1000 /*ms*/);
         }
     } else {
         const subscription = subscriptions[callback];
@@ -288,7 +304,7 @@ app.post('/callback/:id', function (req, res, next) {
             log.error("ignoring message because X-Hub-Signature header is missing");
             return res.status(200).contentType('text').send('OK');
         }
-        const [algorithm,x_hub_value] = x_hub_signature.split('=');
+        const [algorithm, x_hub_value] = x_hub_signature.split('=');
         let hmac = crypto.createHmac(algorithm, subscription.secret);
         log.debug('start collecting POSTed data and calculate hmac');
         req.on('data', async (data) => {
@@ -303,10 +319,8 @@ app.post('/callback/:id', function (req, res, next) {
             } else {
                 log.error("ignoring message because X-Hub-Signature is wrong");
             }
-        }); 
+        });
     }
-
-
 
     res.status(200).contentType('text').send('OK');
 });
@@ -338,7 +352,7 @@ server.wsServer.on('connection', function (socket) {
         subscription.state = 'unsubscribe';
 
         // Inform the Hub to unsubscribe the callback
-        request(config.hub_url,
+        request(subscription.hub,
             {
                 method: 'POST',
                 followRedirect: false,
