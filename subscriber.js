@@ -174,12 +174,12 @@ app.get('/callback/:id', function (req, res, net) {
 
     if (mode === 'subscribe') {
         const subscription = subscriptions[callback];
-        log.debug('info: ', subscription.topic);
         if (subscription === undefined) {
             log.error('callback does not exist: ', callback);
-            return res.status(404).contentType('text').send('callback not found');
+            return res.status(404).contentType('text').send('subscription not found for callback: ' + callback);
         }
-
+        log.debug('info: ', subscription.topic);
+        
         // process lease_seconds
         let lease_seconds = req.query['hub.lease_seconds'] || null;
         log.debug(`lease_seconds: ${lease_seconds}`);
