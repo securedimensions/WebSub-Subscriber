@@ -79,9 +79,9 @@
 					</p>
 					<form>
 						<label for="hub">WebSub Hub:</label><br>
-						<input type="text" id="hub" name="hub" style="width:40em" readonly><br>
+						<input type="text" id="hub" name="hub" style="width:40em"><br>
 						<label for="topic">Topic URL:</label><br>
-						<input type="text" id="topic" name="topic" style="width:80em" readonly><br>
+						<input type="text" id="topic" name="topic" style="width:80em"><br>
 						<label for="lease_seconds">Lease Seconds:</label><br>
 						<input type="number" id="lease_seconds" name="lease_seconds" value="300" min="60"
 							max="3600"><br><br>
@@ -118,7 +118,7 @@
 						// Function to subscribe
 						function subscribeTopic() {
 
-							let url = 'wss://websub-subscriber.citiobs.secd.eu?topic=' + encodeURIComponent(topic.value) + '&lease_seconds=' + lease_seconds.value;
+							let url = "<%= wsUrl %>" + '?hub=' + encodeURIComponent(hub.value) + '&topic=' + encodeURIComponent(topic.value) + '&lease_seconds=' + lease_seconds.value;
 							if (socket === undefined)
 								socket = new WebSocket(url);
 							else
