@@ -13,6 +13,7 @@
   "dependencies": {
     "crypto": "^1.0.1",
     "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
     "express": "^4.21.1",
     "express-ws-routes": "^1.1.0",
     "loglevel": "^1.9.2",
