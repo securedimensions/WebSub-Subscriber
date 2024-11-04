@@ -7,13 +7,13 @@ services:
     env_file:
       - ./.env
     environment:
-      - "SUBSCRIBER_PORT=$SUBSCRIBER_PORT"
-      - "SUBSCRIBER_LOG_LEVEL=$SUBSCRIBER_LOG_LEVEL"
+      - "PORT=$PORT"
+      - "LOG_LEVEL=$LOG_LEVEL"
       - "HUB_URL=$HUB_URL"
       - "LEASE_SECONDS=$LEASE_SECONDS"
       - "LEASE_SKEW_SECONDS=$LEASE_SKEW_SECONDS"
     ports:
-      - "$SUBSCRIBER_PORT:$SUBSCRIBER_PORT"
+      - "$PORT:$PORT"
 networks:
   WebSubSubscriber:
     name: WebSub-Subscriber

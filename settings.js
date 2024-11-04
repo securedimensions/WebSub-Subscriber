@@ -21,13 +21,13 @@
 require("dotenv").config();
 
 const log = require('loglevel');
-log.setLevel(process.env.SUBSCRIBER_LOG_LEVEL || log.levels.INFO);
+log.setLevel(process.env.LOG_LEVEL || log.levels.INFO);
 
 module.exports = {
     "config": {
-        "port": process.env.SUBSCRIBER_PORT || 3000,
-        "root_url": process.env.SUBSCRIBER_ROOT_URL || 'http://192.168.1.121:3000/callback/', // must have / at the end!
-        "hub_url": process.env.HUB_URL || 'http://localhost:4000/api/subscriptions',
+        "port": process.env.PORT || 3000,
+        "root_url": process.env.CALLBACK_URL.endsWith('/') ? process.env.CALLBACK_URL : process.env.CALLBACK_URL + '/' || 'http://192.168.1.121:3000/callback/', // must have / at the end!
+        "websocket_url": process.env.WEBSOCKET_URL || 'ws://192.168.1.121:3000/ws', 
         "lease_seconds": process.env.LEASE_SECONDS || 300,
         "lease_skew_seconds": process.env.LEASE_SKEW_SECONDS || 10,
         "websocket_domains": process.env.WEBSOCKET_DOMAINS.split(',') || ['localhost']
