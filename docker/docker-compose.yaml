@@ -9,8 +9,7 @@ services:
     environment:
       - "PORT=$PORT"
       - "LOG_LEVEL=$LOG_LEVEL"
-      - "CALLBACK_URL=$CALLBACK_URL"
-      - "WEBSOCKET_URL=$WEBSOCKET_URL"
+      - "URL=$URL"
       - "LEASE_SECONDS=$LEASE_SECONDS"
       - "LEASE_SKEW_SECONDS=$LEASE_SKEW_SECONDS"
     ports:

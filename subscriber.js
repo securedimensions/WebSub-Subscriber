@@ -72,7 +72,7 @@ app.use('/callback/:topic', function (req, res, next) {
 app.get("/", function (req, res, next) {
     log.debug("/index.html");
     
-    res.render(__dirname + "/views/index.html", { wsUrl: config.websocket_url });
+    res.render(__dirname + "/views/index.html", { wsUrl: config.root_url.replace('http', 'ws') + '/ws' });
 }
 );
 
@@ -128,7 +128,7 @@ app.websocket('/ws', function (info, cb, next) {
             data: {
                 'hub.mode': 'subscribe',
                 'hub.topic': querystring.escape(topic),
-                'hub.callback': config.root_url + callback,
+                'hub.callback': config.root_url + '/callback/' + callback,
                 'hub.secret': secret,
                 'hub.lease_seconds': lease_seconds
             }
@@ -242,7 +242,7 @@ app.get('/callback/:id', function (req, res, net) {
                     data: {
                         'hub.mode': 'subscribe',
                         'hub.topic': querystring.escape(subscription.topic),
-                        'hub.callback': config.root_url + subscription.callback,
+                        'hub.callback': config.root_url + '/callback/' + subscription.callback,
                         'hub.secret': crypto.randomBytes(16).toString('hex'),
                         'hub.lease_seconds': lease_seconds
                     }
@@ -359,7 +359,7 @@ server.wsServer.on('connection', function (socket) {
                 data: {
                     'hub.mode': 'unsubscribe',
                     'hub.topic': querystring.escape(socket.userInfo.topic),
-                    'hub.callback': config.root_url + callback
+                    'hub.callback': config.root_url + '/callback/' + callback
                 }
             }
         ).then(res => {

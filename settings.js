@@ -26,8 +26,7 @@ log.setLevel(process.env.LOG_LEVEL || log.levels.INFO);
 module.exports = {
     "config": {
         "port": process.env.PORT || 3000,
-        "root_url": process.env.CALLBACK_URL.endsWith('/') ? process.env.CALLBACK_URL : process.env.CALLBACK_URL + '/' || 'http://192.168.1.121:3000/callback/', // must have / at the end!
-        "websocket_url": process.env.WEBSOCKET_URL || 'ws://192.168.1.121:3000/ws', 
+        "root_url": process.env.URL.endsWith('/') ? process.env.URL.substring(0,process.env.URL.length-1) : process.env.URL || 'http://192.168.1.121:3000',
         "lease_seconds": process.env.LEASE_SECONDS || 300,
         "lease_skew_seconds": process.env.LEASE_SKEW_SECONDS || 10,
         "websocket_domains": process.env.WEBSOCKET_DOMAINS.split(',') || ['localhost']
