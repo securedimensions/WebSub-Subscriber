@@ -81,7 +81,10 @@
 						<input type="text" id="hub" name="hub" style="width:40em"><br>
 						<label for="topic">Topic URL:</label><br>
 						<input type="text" id="topic" name="topic" style="width:80em"><br>
-						<label for="lease_seconds">Lease Seconds:</label><br>
+						<label for="help">Help URL:</label><br>
+						<a id="help"></a><br><br>
+						<p>Your input:</p>
+						<label for="lease_seconds">Please Specify Lease Seconds:</label><br>
 						<input type="number" id="lease_seconds" name="lease_seconds" value="300" min="60"
 							max="3600"><br><br>
 						<input type="button" style="background-color:green;color:white" onclick="subscribeTopic()"
@@ -90,6 +93,7 @@
 							value="Unsubscribe">
 					</form>
 					<h3>Notifications</h3>
+					<h4><img id="pulse" src="images/7SUp.gif" height="40" style="visibility:hidden"></h4>
 					<div id="messages" style="overflow:auto;height:40em;width:80em;background-color:white;color:blue">
 					</div>
 
@@ -98,6 +102,8 @@
 						var messagesDiv = document.getElementById('messages');
 						var topicDiv = document.getElementById('topic');
 						var hubDiv = document.getElementById('hub');
+						var helpDiv = document.getElementById('help');
+						var pulseDiv = document.getElementById('pulse');
 						var lease_seconds = document.getElementById('lease_seconds');
 						// Function to discover topic
 						function discoverTopic() {
@@ -109,7 +115,18 @@
 									var links = parseLink(this.getResponseHeader('link'));
 									console.log(links);
 									hubDiv.value = links['hub'];
-									topicDiv.value = links['self'];
+									if (links['self'] === undefined) {
+										topicDiv.style.backgroundColor = "red";
+										topicDiv.style.color = "white";
+										helpDiv.innerText = links['help'];
+										helpDiv.href = links['help'];
+									} else {
+										topicDiv.value = links['self'];//.replaceAll("%2C",",").replaceAll("%20"," ");
+										topicDiv.style.backgroundColor = "green";
+                                                                                topicDiv.style.color = "white";
+										helpDiv.innerText = '';
+										helpDiv.href = '';
+									}
 								}
 							}
 							xhr.send()
@@ -125,6 +142,7 @@
 
 							// Event listener for WebSocket connection open
 							socket.addEventListener('open', () => {
+								pulseDiv.style.visibility = "visible";
 								console.log('Websocket connected for topic `%s`', topic.value);
 							});
 
@@ -140,6 +158,7 @@
 							if (socket !== undefined)
 								socket.close();
 							socket = undefined;
+							pulseDiv.style.visibility = "hidden";
 							messagesDiv.innerHTML = '<p/>';
 						}
 					</script>
