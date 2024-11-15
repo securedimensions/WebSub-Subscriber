@@ -116,6 +116,7 @@
 									console.log(links);
 									hubDiv.value = links['hub'];
 									if (links['self'] === undefined) {
+										topicDiv.value = '';
 										topicDiv.style.backgroundColor = "red";
 										topicDiv.style.color = "white";
 										helpDiv.innerText = links['help'];
